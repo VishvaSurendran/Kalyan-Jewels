@@ -15,7 +15,7 @@ function FeedbackForm() {
     e.preventDefault();
     const toastId = toast.loading('Submitting your feedback...');
     try {
-      const response = await fetch('http://localhost:5000/api/feedback', {
+      const response = await fetch('https://kalyan-feedback-api.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
