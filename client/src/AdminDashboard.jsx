@@ -18,7 +18,7 @@ function AdminDashboard() {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/feedback');
+      const response = await fetch('https://kalyan-feedback-api.onrender.com');
       const data = await response.json();
       setFeedbacks(data);
     } catch (error) {
@@ -42,7 +42,7 @@ function AdminDashboard() {
   const updateStatus = async (id, newStatus, empName, empId) => {
     const toastId = toast.loading('Updating status...');
     try {
-      const response = await fetch(`http://localhost:5000/api/feedback/${id}/status`, {
+      const response = await fetch(`https://kalyan-feedback-api.onrender.com/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
