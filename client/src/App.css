@@ -15,19 +15,55 @@ body {
   color: #333;
 }
 
+/* --- FORM PAGE STYLES --- */
+
 .page-wrapper {
   display: flex;
+  flex-direction: column; /* Changed to allow the admin link to stack gracefully */
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 20px;
 }
 
+.admin-link {
+  /* Removed position: absolute so it doesn't overlap on mobile */
+  align-self: flex-end; 
+  margin-bottom: 20px;
+  background: #6C1414;
+  color: #D4AF37;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  border: 1px solid #D4AF37;
+  transition: all 0.3s ease;
+  max-width: 600px; /* Matches form width */
+  width: 100%;
+  text-align: center;
+}
+
+/* On desktop, make the admin link sit neatly at the top right */
+@media screen and (min-width: 601px) {
+  .admin-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    margin-bottom: 0;
+  }
+}
+
+.admin-link:hover {
+  background: #D4AF37;
+  color: #6C1414;
+}
+
 .form-container {
   background-color: #ffffff;
   width: 100%;
   max-width: 600px;
-  /* Slightly wider for the two-column layout */
   border-radius: 12px;
   box-shadow: 0 15px 35px rgba(108, 20, 20, 0.1);
   overflow: hidden;
@@ -78,7 +114,6 @@ body {
   margin-bottom: 15px;
 }
 
-/* Remove bottom margin for fields inside row-group to prevent double spacing */
 .row-group .input-group {
   margin-bottom: 0;
 }
@@ -87,7 +122,6 @@ label {
   font-size: 12px;
   font-weight: 700;
   color: #6C1414;
-  /* Deep maroon labels */
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -127,12 +161,12 @@ textarea {
 
 .submit-btn {
   width: 50%;
-  padding: 10px;
+  padding: 12px; /* Increased padding for better tap target */
   background-color: #D4AF37;
   color: #6C1414;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 14px; /* Slightly larger text */
   font-weight: 800;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -151,45 +185,8 @@ textarea {
   transform: translateY(0);
 }
 
-/* --- MOBILE RESPONSIVENESS --- */
-@media screen and (max-width: 600px) {
-  .row-group {
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 15px;
-  }
-
-  .brand-header h2 {
-    font-size: 26px;
-  }
-
-  .feedback-form {
-    padding: 20px;
-  }
-}
-
 
 /* --- ADMIN PANEL STYLES --- */
-
-.admin-link {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #6C1414;
-  color: #D4AF37;
-  padding: 8px 16px;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 14px;
-  border: 1px solid #D4AF37;
-  transition: all 0.3s ease;
-}
-
-.admin-link:hover {
-  background: #D4AF37;
-  color: #6C1414;
-}
 
 .admin-wrapper {
   min-height: 100vh;
@@ -237,24 +234,14 @@ textarea {
   padding: 0 20px;
 }
 
-/* Search and Filters */
 .admin-controls {
   display: flex;
   gap: 15px;
   margin-bottom: 30px;
 }
 
-.search-bar {
-  flex: 1;
-  padding: 14px 20px;
-  border: 1px solid #D4AF37;
-  border-radius: 8px;
-  font-size: 15px;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
-}
-
 .filter-dropdown {
-  width: 200px;
+  width: 100%;
   padding: 14px 20px;
   border: 1px solid #D4AF37;
   border-radius: 8px;
@@ -275,7 +262,8 @@ textarea {
 /* Premium Card Design */
 .feedback-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  /* UPGRADED: min(100%, 340px) prevents horizontal scrolling on small phones */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
   gap: 25px;
 }
 
@@ -296,7 +284,6 @@ textarea {
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
 }
 
-/* Card States */
 .feedback-card.completed { border-top-color: #22c55e; opacity: 0.9; }
 .feedback-card.declined { border-top-color: #ef4444; opacity: 0.8; }
 
@@ -307,12 +294,14 @@ textarea {
   margin-bottom: 20px;
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 15px;
+  gap: 10px; /* Added gap to separate title and badge */
 }
 
 .card-header h3 {
   color: #111;
   margin: 0 0 5px 0;
   font-size: 18px;
+  word-break: break-word; /* Prevents long names from breaking layout */
 }
 
 .card-date {
@@ -327,6 +316,7 @@ textarea {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap; /* Keeps badge text on one line */
 }
 
 .status-badge.pending { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
@@ -346,6 +336,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 6px;
+  word-break: break-word;
 }
 
 .card-message {
@@ -360,7 +351,6 @@ textarea {
   line-height: 1.5;
 }
 
-/* Action Buttons */
 .card-actions {
   display: flex;
   gap: 12px;
@@ -368,10 +358,10 @@ textarea {
 
 .card-actions button {
   flex: 1;
-  padding: 10px;
+  padding: 12px 10px; /* Taller tap target */
   border: none;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -385,7 +375,6 @@ textarea {
 .btn-declined { background: #fff; color: #ef4444; border: 1px solid #fecaca !important; }
 .btn-declined:hover { background: #fef2f2; }
 
-/* Resolved Info Block */
 .resolution-info {
   background-color: #f8f9fa;
   padding: 12px;
@@ -405,14 +394,58 @@ textarea {
   font-size: 12px;
 }
 
+/* --- PERFECT MOBILE RESPONSIVENESS --- */
 @media screen and (max-width: 768px) {
+  /* Stack admin filters on tablets/phones */
   .admin-controls {
     flex-direction: column;
+    gap: 10px;
   }
-  .filter-dropdown {
-    width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+  /* Form Mobile Adjustments */
+  .row-group {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
   }
+
+  .brand-header h2 {
+    font-size: 26px;
+  }
+
+  .feedback-form {
+    padding: 20px;
+  }
+
+  /* Make button full width on small screens for better thumb tapping */
+  .submit-btn {
+    width: 100%; 
+  }
+
+  /* Admin Header Mobile Adjustments */
+  .admin-header-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .admin-header h2 {
+    font-size: 22px;
+  }
+
+  /* Admin Dashboard Mobile Adjustments */
+  .dashboard-container {
+    margin: 20px auto;
+  }
+
   .card-details {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stack card details */
+    gap: 8px;
+  }
+
+  .card-actions {
+    flex-direction: column; /* Stack action buttons */
   }
 }
