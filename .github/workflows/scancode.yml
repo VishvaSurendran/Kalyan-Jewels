@@ -1,0 +1,38 @@
+name: ScanCode License Audit
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  scancode-audit:
+    name: ScanCode License Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download and Extract ScanCode Official Release
+        run: |
+          # Download the official stable release archive directly from nexB
+          wget https://github.com/nexB/scancode-toolkit/releases/download/v32.2.1/scancode-toolkit-32.2.1.tar.gz
+          tar -xzf scancode-toolkit-32.2.1.tar.gz
+          mv scancode-toolkit-32.2.1 scancode-toolkit
+
+      - name: Run ScanCode License Audit
+        run: |
+          # Execute the standalone scancode script
+          ./scancode-toolkit/scancode -clpieu --json-pp scancode-report.json .
+
+      - name: Upload ScanCode Report as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scancode-license-report
+          path: scancode-report.json
