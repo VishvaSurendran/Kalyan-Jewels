@@ -19,17 +19,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Download and Extract ScanCode Official Release
+      - name: Install ScanCode Toolkit Mini
         run: |
-          # Download the official stable release archive directly from nexB
-          wget https://github.com/nexB/scancode-toolkit/releases/download/v32.2.1/scancode-toolkit-32.2.1.tar.gz
-          tar -xzf scancode-toolkit-32.2.1.tar.gz
-          mv scancode-toolkit-32.2.1 scancode-toolkit
+          python -m pip install --upgrade pip
+          pip install scancode-toolkit-mini
 
       - name: Run ScanCode License Audit
         run: |
-          # Execute the standalone scancode script
-          ./scancode-toolkit/scancode -clpieu --json-pp scancode-report.json .
+          scancode -clpieu --json-pp scancode-report.json .
 
       - name: Upload ScanCode Report as Artifact
         uses: actions/upload-artifact@v4
