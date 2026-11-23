@@ -50,9 +50,18 @@ jobs:
     name: ScanCode License Audit
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # The ScanCode release archive defaults to "python3.11", which is not
+      # on PATH here. Point it at the Python installed by setup-python.
+      PYTHON_EXECUTABLE: python3
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Install ScanCode Toolkit (official release)
         run: |
@@ -66,7 +75,9 @@ jobs:
           echo "$HOME/scancode-toolkit" >> "$GITHUB_PATH"
 
       - name: Verify ScanCode
-        run: scancode --version
+        run: |
+          python3 --version
+          scancode --version
 
       - name: Run ScanCode License Audit
         run: |
