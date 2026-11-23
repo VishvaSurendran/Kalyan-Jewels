@@ -1,4 +1,4 @@
-name: Trivy Security Scan
+name: DevSecOps Pipeline (Trivy & ScanCode)
 
 on:
   push:
@@ -11,6 +11,9 @@ permissions:
   security-events: write
 
 jobs:
+  # ------------------------------------------------------------------
+  # 1. TRIVY: Vulnerability, Secret & IaC Scanner
+  # ------------------------------------------------------------------
   trivy-scan:
     name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
@@ -32,3 +35,28 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+
+  # ------------------------------------------------------------------
+  # 2. SCANCODE: Open-Source License & Copyright Audit
+  # ------------------------------------------------------------------
+  scancode-audit:
+    name: ScanCode License Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ScanCode Toolkit via Docker
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/project" \
+            ghcr.io/aboutcode-org/scancode-toolkit:latest \
+            -clpieu \
+            --json-pp /project/scancode-report.json \
+            /project
+
+      - name: Upload ScanCode Report as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scancode-license-report
+          path: scancode-report.json
