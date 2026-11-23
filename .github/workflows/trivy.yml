@@ -5,10 +5,15 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ------------------------------------------------------------------
@@ -17,6 +22,7 @@ jobs:
   trivy-scan:
     name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +32,7 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
+          scanners: 'vuln,secret,misconfig'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
@@ -36,12 +43,13 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
- # ------------------------------------------------------------------
+  # ------------------------------------------------------------------
   # 2. SCANCODE: Open-Source License & Copyright Audit
   # ------------------------------------------------------------------
   scancode-audit:
     name: ScanCode License Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,18 +58,37 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
-      - name: Install ScanCode Toolkit with Full Plugins
+      - name: Install ScanCode Toolkit (official release)
         run: |
-          python -m pip install --upgrade pip
-          pip install "scancode-toolkit[full]"
+          VERSION=32.5.0
+          curl -fsSL -o scancode.tar.gz \
+            "https://github.com/aboutcode-org/scancode-toolkit/releases/download/v${VERSION}/scancode-toolkit-v${VERSION}_py3.11-linux.tar.gz"
+          echo "99fd0a1ca46f984e6a35a1fa6990d0029e4e78b764bc43563009a2b2e020812a  scancode.tar.gz" | sha256sum -c -
+          mkdir -p "$HOME/scancode-toolkit"
+          tar -xzf scancode.tar.gz -C "$HOME/scancode-toolkit" --strip-components=1
+          rm scancode.tar.gz
+          echo "$HOME/scancode-toolkit" >> "$GITHUB_PATH"
+
+      - name: Verify ScanCode
+        run: scancode --version
 
       - name: Run ScanCode License Audit
         run: |
-          scancode -clpieu --json-pp scancode-report.json .
+          scancode -clpieu \
+            --processes 4 \
+            --timeout 120 \
+            --ignore "node_modules/*" \
+            --ignore ".git/*" \
+            --ignore "*.sarif" \
+            --json-pp scancode-report.json .
 
       - name: Upload ScanCode Report as Artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: scancode-license-report
           path: scancode-report.json
+          if-no-files-found: warn
+          retention-days: 30
